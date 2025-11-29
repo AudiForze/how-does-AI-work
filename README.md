@@ -1,212 +1,72 @@
-### Trading Minorista e Institucional
+# 🧠 Fundamentos de Machine Learning y Redes Neuronales
 
-##### ▶️ Videos Relacionados de Quant Guild:
+Este repositorio contiene una explicación detallada y los conceptos fundamentales detrás del proceso de desarrollo y entrenamiento de un modelo de **Inteligencia Artificial** o una **Red Neuronal** desde sus bases.
 
-- [Los Retornos Esperados de las Acciones No Existen](https://youtu.be/iXNSBn5xqrA)
+## 🚀 Proceso de Aprendizaje de una IA (El Ciclo Completo)
 
-- [Qué Aprende Realmente la IA](https://youtu.be/tX7b2KT63WQ)
-
-- [Cómo Hacer Trading](https://youtu.be/NqOj__PaMec)
-
-- [Cómo Operar con la Volatilidad Implícita en Opciones](https://youtu.be/kQPCTXxdptQ)
-
-- [Cómo Operar con Ventaja](https://youtu.be/NlqpDB2BhxE)
-
-- [Cómo Operar con el Criterio de Kelly](https://youtu.be/7tvW3NvRnPk)
-
-###### ______________________________________________________________________________________________________________________________________
-
-##### [📚 Visita la Biblioteca de Quant Guild para más Notebooks en Jupyter](https://github.com/romanmichaelpaolucci/Quant-Guild-Library)
-
-##### [🚀 Domina tus Habilidades Cuantitativas con Quant Guild](https://quantguild.com)
-
-##### [📅 Toma Clases en Vivo con Roman en Quant Guild](https://quantguild.com/live-classes)
+El entrenamiento de una IA se basa en un ciclo iterativo y sistemático cuyo objetivo es ajustar los parámetros internos del modelo para minimizar el error de predicción.
 
 ---
 
-### 📖 Secciones
+### 1. 📂 Preparación y División de Datos
 
-#### 1.) 📈 Trading Minorista 
+El primer paso crucial es la gestión de los datos de entrada.
 
-- Cómo pensar sobre el trading minorista  
-- Mi P/L acumulado en 2025  
-- ¿Pueden los minoristas aplicar estrategias institucionales?  
-
-#### 2.) 🏛️ Trading Institucional - Lado de Venta  
-
-- El Market-Making como negocio  
-- Riesgos que enfrentan los Market-Makers  
-
-#### 3.) 💵 Trading Institucional - Lado de Compra  
-
-- Trading Especulativo  
-- Hedge Funds Cuantitativos  
-- Estrategias, Horizontes, Alfa  
-
-#### 4.) 💰 ¿Qué Hace un Quant con el Dinero?  
-
-- Entendiendo el panorama y las estrategias disponibles  
-- Combinaciones lineales y expectativas  
-- Realidad  
-
-#### 5.) 💭 Reflexiones Finales y Temas Futuros  
+* **Dataset (Conjunto de Datos):** La totalidad de los datos disponibles se divide estratégicamente:
+    * **Training Set (Conjunto de Entrenamiento):** Se utiliza para que el modelo **aprenda** y ajuste sus pesos (W) y sesgos (b).
+    * **Test Set (Conjunto de Prueba):** Se mantiene separado para **evaluar** el rendimiento final del modelo con datos que nunca ha procesado.
+    > *Este proceso asegura que el modelo pueda **generalizar** y no solo memorizar.*
 
 ---
 
-#### 1.) 📈 Trading Minorista  
+### 2. 🎯 Función de Pérdida (Loss Function) 
 
-Cosas a tener en cuenta como trader minorista:
+[Image of Loss Function Parabola]
 
-- La distribución está **muy sesgada**: una combinación de traders informados y no informados.  
-- *El mercado* no se preocupa si logras extraer cientos de miles o incluso millones de dólares.  
-- El trading discrecional y algorítmico puede ser rentable.  
-- La estrategia y la información juegan un papel clave.  
-- Limitaciones tecnológicas y escalabilidad.  
 
-###### ______________________________________________________________________________________________________________________________________
+La función de pérdida es la métrica matemática que cuantifica el grado de **error** del modelo.
 
-##### 💸 Mi Trading Discrecional y Algorítmico (YTD) en 2025  
+* **Definición:** Mide la distancia entre el valor predicho ($\hat{y}$) y el valor real ($y$).
+* **Objetivo:** El entrenamiento busca encontrar los valores de pesos y sesgos que resulten en el **punto mínimo** de esta función. Un valor bajo significa una alta **precisión** (_accuracy_).
 
-<u>Esto excluye Cripto e Inversiones a Largo Plazo</u>  
+---
 
-- Opero de forma discrecional y algorítmica con Interactive Brokers.  
-- He reajustado mi portafolio al valor nocional al inicio de 2025 y lo represento en términos de $100,000.  
+### 3. 📉 Optimización: Descenso del Gradiente (Gradient Descent)
 
-```python
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+El Descenso del Gradiente es el algoritmo usado para navegar la curva de pérdida y encontrar ese punto mínimo.
 
-# Leer y procesar datos
-df = pd.read_csv('2025_YTD_Return.csv')['Stock']
+* **Gradiente:** Representa la pendiente de la función de pérdida. Indica la dirección y la intensidad del cambio que se necesita.
+* **Ajuste:** La IA utiliza el gradiente para determinar cómo y cuánto debe **ajustar los pesos y sesgos** en cada iteración, moviéndose progresivamente hacia el punto de menor error.
 
-# Rebase a nocional 100k para ocultar tamaño real del portafolio
-df = (df / df.iloc[0]) * 100000
-df_after_60 = df[60:]
+---
 
-# Calcular métricas para ambos periodos
-def calculate_metrics(data):
-    returns = data.pct_change().dropna()
-    risk_free_rate = 0.05
-    daily_rf = (1 + risk_free_rate)**(1/252) - 1
-    
-    excess_returns = returns - daily_rf
-    avg_excess_return = excess_returns.mean()
-    std_dev = returns.std()
-    downside_returns = returns[returns < 0]
-    downside_std = downside_returns.std()
-    
-    sharpe = (avg_excess_return / std_dev) * np.sqrt(252)
-    sortino = (avg_excess_return / downside_std) * np.sqrt(252)
-    
-    return sharpe, sortino
+### 4. ⚙️ Entrenamiento en la Red Neuronal
 
-sharpe_full, sortino_full = calculate_metrics(df)
-sharpe_after, sortino_after = calculate_metrics(df_after_60)
+El entrenamiento se divide en dos fases que se ejecutan repetidamente por cada *epoch* (ciclo completo sobre el conjunto de entrenamiento):
 
-# Crear figura
-fig = make_subplots(rows=2, cols=1,
-                    subplot_titles=(f'Serie Completa<br>Sharpe: {sharpe_full:.2f} | Sortino: {sortino_full:.2f}',
-                                    f'Después del Día 60<br>Sharpe: {sharpe_after:.2f} | Sortino: {sortino_after:.2f}'))
+#### A. Propagación Hacia Adelante (*Forward Pass*)
+1.  Los datos pasan a través de las capas de la red.
+2.  En cada neurona, la entrada se multiplica por el **Peso (W)** y se le suma el **Sesgo (b)**.
+3.  El resultado se procesa mediante una **Función de Activación** (como la **Sigmoide** que convierte valores en probabilidades entre 0 y 1).
+4.  La red genera una **predicción** ($\hat{y}$).
 
-# Agregar trazas
-fig.add_trace(
-    go.Scatter(y=df, line=dict(color='rgba(0, 191, 255, 0.6)')),
-    row=1, col=1
-)
+#### B. Retropropagación (*Backpropagation*) 
+Esta es la fase de **aprendizaje** donde el error se propaga hacia atrás.
 
-fig.add_trace(
-    go.Scatter(y=df_after_60, line=dict(color='rgba(0, 191, 255, 0.6)')),
-    row=2, col=1
-)
+1.  Se calcula la **diferencia** entre la predicción y el valor real (el error).
+2.  La retropropagación utiliza el **Cálculo de Gradientes** para determinar exactamente qué neurona o conexión contribuyó más al error.
+3.  Esta información es utilizada por el **Descenso del Gradiente** para realizar la **actualización de pesos y sesgos**, cerrando el ciclo de aprendizaje y optimizando el modelo para la siguiente iteración.
 
-# Configuración de diseño
-fig.update_layout(
-    width=1000,
-    height=800,
-    showlegend=False,
-    plot_bgcolor='rgba(0,0,0,0)',
-    paper_bgcolor='rgba(0,0,0,0)',
-    font=dict(color='white')
-)
+---
 
-# Ejes
-for i in range(1, 3):
-    fig.update_xaxes(
-        showgrid=True,
-        gridwidth=1,
-        gridcolor='rgba(128,128,128,0.2)',
-        zeroline=True,
-        zerolinewidth=1,
-        zerolinecolor='rgba(128,128,128,0.5)',
-        row=i, col=1
-    )
-    fig.update_yaxes(
-        showgrid=True,
-        gridwidth=1,
-        gridcolor='rgba(128,128,128,0.2)',
-        zeroline=True,
-        zerolinewidth=1,
-        zerolinecolor='rgba(128,128,128,0.5)',
-        row=i, col=1
-    )
+### 5. ✅ Evaluación Final
 
-fig.show()
-```
-🎯 ¿Pueden los Minoristas Operar Estrategias de Nivel Institucional?
+Tras completar el entrenamiento, el modelo se valida con el **Test Set**.
 
-El secreto no siempre es indicativo de rendimiento o habilidad...
+* La **precisión** (_accuracy_) y otras métricas se calculan para determinar la capacidad real del modelo para hacer predicciones correctas en datos que no formaron parte de su entrenamiento.
 
-Sí y no — ¿quieres un asiento en la mesa o quieres operar como minorista por tu propia cuenta?
+## 🛠️ Conceptos Clave Adicionales
 
-¿Quién va a construir tu infraestructura?
-
-¿Quién va a asumir el riesgo en cualquier (o todas) las operaciones?
-
-¿Quién va a optimizar tus estrategias? (nuevas estrategias a producción, retirar u optimizar las que presenten degradación en el rendimiento)
-
-<u>Con qué tener cuidado</u>
-
-Plataformas que automatizan procesos para ti, quieren suscripciones. Tentador, pero el sobreajuste es solo una de las trampas...
-
-Noticias en cualquier formato, quieren tu atención.
-
-Brokers y apps que hacen el trading demasiado fácil, quieren tu comisión.
-
-<u>Qué deberías hacer</u>
-
-Aprende matemáticas, probabilidad, estadística, finanzas, economía...
-
-Toma decisiones de trading cuantitativo que creas que tienen ventaja, sea de manera algorítmica o discrecional.
-
-🚀 Domina tus Habilidades Cuantitativas para <u>Tomar Tus Propias Decisiones de Trading</u>
-
-2.) 🏛️ Trading Institucional - Lado de Venta
-
-Normalmente, la gente comienza en el lado de venta y busca pasar al lado de compra donde el trading especulativo puede ser más lucrativo.
-
-Los traders en estas mesas cotizan un precio bid/offer y buscan recolectar un spread basado en un precio medio.
-
-Gran parte de esto hoy en día está automatizado, especialmente en trading de alta frecuencia.
-
-Aun así, aquí es donde el análisis de series temporales y los modelos que intentan construir un nivel (expectativa) pueden ser válidos. Para ser rentable a largo plazo, estos modelos solo necesitan ser correctos en promedio — similar a la ventaja construida en un juego de monedas o dados.
-
-# (Aquí seguía otro bloque de código de visualización con plotly,
-#  se mantiene exactamente igual que en el archivo original)
-
-3.) 💵 Trading Institucional - Lado de Compra
-
-Trading Especulativo
-
-Hedge Funds Cuantitativos
-
-Estrategias, Horizontes, Alfa
-
-4.) 💰 ¿Qué Hace un Quant con el Dinero?
-
-Entender el panorama y las estrategias disponibles
-
-Combinaciones lineales y expectativas
-
-Realidad
+* **LLM (Large Language Model):** El diagrama hace referencia a que la red neuronal puede ser la base de un LLM que realiza predicciones de palabras.
+* **GPU (Unidad de Procesamiento Gráfico):** Es esencial para la IA moderna, ya que realiza de manera eficiente los **cálculos matriciales** masivos requeridos por el entrenamiento en paralelo.
+* **Matrices (W, b):** Los **pesos** y **sesgos** de la red se almacenan como matrices. Son los parámetros **internos** que la IA ajusta para aprender la relación entre los datos.
